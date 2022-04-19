@@ -84,6 +84,7 @@ def construct_mail(index):
     name = df.name[index]  # Get the name of the indexed row.
     correspondent = df.correspondent[index]  # Get the correspondent of the indexed row.
     spesification = df.spesification[index]  # Get the correspondent of the indexed row.
+
     body = dictionary(name, correspondent, spesification, template)  # Construct mail using the dict and index values.
 
     content = MIMEText(body, "plain")
@@ -97,7 +98,7 @@ def construct_mail(index):
     else:
         msg['Subject'] = 'iGEM Team Maastricht'
         msg['From'] = 'iGEM Maastricht University'
-        msg.attach(payload)
+        msg.(payload)
 
     return body, msg
 
