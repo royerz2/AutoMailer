@@ -51,7 +51,7 @@ class mailer(): # This class is entirely responsible for mail related stuff. I t
                       subject = None,
                       attachDir = None):
 
-        self.mailBase = MIMEMultipart("alternative")   # Create a base for the email to be built on
+        self.mailBase = MIMEMultipart("alternative") # Create a base for the email to be built on
 
         if mailTextContent is not None: self.mailBase.attach(MIMEText(mailTextContent, "plain", "utf-8")) # Embed text if provided
         if mailHtmlContent is not None: self.mailBase.attach(mailHtmlContent, "html", "utf-8") # Embed html if provided
@@ -74,16 +74,21 @@ class mailer(): # This class is entirely responsible for mail related stuff. I t
     def sendMail(self, # Send the email to the desired recipient
                  recipientAddr = None,
                  bcc = None):
+        try:
+            if recipientAddr is None: raise Exception("No address provided to send the email!")
+            if not re.fullmatch(self.emailRegex, recipientAddr): raise Exception("The email address entered is not valid!")
 
-        if recipientAddr is None: raise Exception("No address provided to send the email!")
-        if not re.fullmatch(self.emailRegex, recipientAddr): raise Exception("The email address entered is not valid!")
+            self.mailBase["To"] = recipientAddr
 
-        self.mailBase["To"] = recipientAddr
+            self.smtpConnection.sendmail(self.mailBase["From"],
+                                         self.mailBase["To"],
+                                         self.mailBase)
 
-        self.smtpConnection.sendmail(self.mailBase["From"],
-                                     self.mailBase["To"],
-                                     self.mailBase)
+        except smtp.SMTPServerDisconnected as e: raise Exception("A problem occurred while connecting to the server! Check if you are logged in!")
+        except Exception as e: raise Exception(f"Something went wrong?: {e}")
 
+    def terminateConnection(self):
+        self.smtpConnection.quit()
 
 if __name__ == "__main__": # Don't run this as a program ok?
     print("This program is not designed to be run!")
